@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Fit Scorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <span class="logo">ResumeFit <span class="logo-accent">Scorer</span></span>
+      <span class="badge-free">No API key needed</span>
+    </div>
+  </header>
+
+  <main class="container main-layout">
+    <!-- ── Left: Input Panel ── -->
+    <section class="input-panel" id="inputPanel">
+      <div class="card">
+        <h2 class="card-title">Job Description</h2>
+        <p class="card-desc">Paste the full job description including skills, requirements, and qualifications.</p>
+        <div class="form-group">
+          <label class="label-upper" for="jdText">JOB DESCRIPTION</label>
+          <textarea id="jdText" class="textarea" rows="10" placeholder="Paste the job description here..." required></textarea>
+          <span class="char-count" id="charCount">0 characters</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Upload Resumes</h2>
+        <p class="card-desc">Upload one or more PDF, DOCX, or TXT resumes (max 10 MB each, up to 50 files).</p>
+        <div class="drop-zone" id="dropZone">
+          <input type="file" id="resumeFiles" multiple accept=".pdf,.docx,.txt" class="file-input-hidden" />
+          <div class="drop-content">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Drag &amp; drop resumes here, or click to browse</span>
+          </div>
+        </div>
+        <div id="fileList" class="file-list"></div>
+      </div>
+
+      <button type="button" class="btn btn-primary btn-full" id="submitBtn">Analyze Resumes</button>
+    </section>
+
+    <!-- ── Right: Results Panel ── -->
+    <section class="results-panel" id="resultsPanel">
+      <!-- Empty state -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <h3>Ready to analyze</h3>
+        <p>Paste a job description, upload resumes, and click Analyze to see results here.</p>
+      </div>
+
+      <!-- Loading state -->
+      <div class="loading-state hidden" id="loadingState">
+        <div class="spinner"></div>
+        <h3>Analyzing...</h3>
+        <div class="stage-indicators" id="stageIndicators">
+          <div class="stage-item active" id="s1"><span class="s-dot"></span> Stage 1: BM25 Keyword Filter</div>
+          <div class="stage-item" id="s2"><span class="s-dot"></span> Stage 2: Semantic Similarity</div>
+          <div class="stage-item" id="s3"><span class="s-dot"></span> Stage 3: Deep Evidence Scoring</div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="results-content hidden" id="resultsContent">
+        <div class="results-header">
+          <h2>Ranked Candidates</h2>
+          <span class="results-meta" id="resultsMeta"></span>
+        </div>
+
+        <div class="results-stats" id="resultsStats"></div>
+        <div class="results-list" id="resultsList"></div>
+
+        <!-- Chat -->
+        <div class="chat-section" id="chatSection">
+          <div class="chat-header">
+            <div>
+              <h3>Follow-up Questions</h3>
+              <p>Ask about the candidates — answers use only stored data, no API calls.</p>
+            </div>
+            <span class="badge-local">100% Local</span>
+          </div>
+          <div class="chat-suggestions">
+            <button type="button" data-q="Summarize candidate 1">Summarize #1</button>
+            <button type="button" data-q="Show education for candidate 1">Education #1</button>
+            <button type="button" data-q="Show experience for candidate 1">Experience #1</button>
+            <button type="button" data-q="Who has the strongest backend experience?">Best backend</button>
+            <button type="button" data-q="Which candidate is closest to the JD but missing the most?">Closest with gaps</button>
+            <button type="button" data-q="List all candidates">List all</button>
+          </div>
+          <div class="chat-messages" id="chatMessages">
+            <div class="msg msg-assistant">Ask a question about the ranked candidates.</div>
+          </div>
+          <form class="chat-form" id="chatForm">
+            <input id="chatInput" placeholder="Ask about the candidates..." maxlength="1000" autocomplete="off" />
+            <button class="btn btn-primary" type="submit">Ask</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>Resume Fit Scorer &mdash; 3-stage hybrid pipeline</span>
+      <a href="https://github.com/DharmikPatel11/Resume_Fit_Scorer" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>
