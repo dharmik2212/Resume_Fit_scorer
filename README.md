@@ -1,4 +1,82 @@
 
+#  Resume Fit Scorer
+
+Compare multiple resumes against a job description and get a ranked shortlist with
+skill match, experience, and education scores — all fully local, no API keys needed.
+
+
+
+##  Scoring Approach & Why
+
+**Fully local 3-stage funnel.** No LLM is called per-resume. This was a deliberate choice:
+
+1. **Zero cost at any scale** — 1 resume or 1000, the price is the same (free)
+2. **Deterministic & auditable** — every score has traceable evidence, not a black box
+3. **No API failures** — no rate limits, no downtime, no token limits to manage
+
+### Stage 1 — BM25 Keyword Filter (free, instant)
+Tokenizes JD and resumes, scores by skill taxonomy overlap (65%) + lexical overlap (25%) +
+BM25 relative score (10%). Uses dynamic percentile threshold (default: keep top 60%).
+Filters ~60% of clear mismatches.
+
+### Stage 2 — Semantic Ranking (free, offline)
+TF-IDF vectorizer with bigrams + cosine similarity between JD and each resume. Filters by
+dynamic count (default: keep top 15). No model download required. Sentence Transformer can
+be swapped in if cached locally.
+
+### Stage 3 — Deep Evidence Scoring (free, deterministic)
+Core logic in `backend/core/stage3_llm.py`. Three dimensions:
+
+- **Skills (50% of deep score):** Uses TF-IDF importance weights from the JD. A skill
+  mentioned 6 times (e.g. "Python") gets higher weight than one mentioned once. Weighted
+  coverage + TF-IDF lexical overlap bonus.
+- **Experience (30%):** Parses year ranges ("2020-2024", "2020 - Present"), explicit years
+  ("5 years of experience"), and computes career span across all roles. Compares against JD
+  requirement. Bonus for multiple companies.
+- **Education (20%):** Detects degree level and exact degree text from resume line-by-line
+  (B.Tech, MBA, PhD, etc.). Compares against JD requirement if specified.
+
+### Final Score
+```
+Final = 0.20 × BM25 + 0.30 × Semantic + 0.50 × Deep Score
+```
+For candidates filtered before later stages, remaining weights are normalized.
+
+### Chat (Bonus Feature)
+Follow-up Q&A uses only pre-computed data stored at scoring time (skills, education detail,
+companies, experience, resume sections). Zero API calls per message.
+
+---
+
+
+## Run Locally
+
+Requires Python 3.10+ and pip.
+
+```bash
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+# Linux/macOS
+# source .venv/bin/activate
+
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+Open **http://localhost:8000**. Paste a job description, upload resumes (PDF/DOCX/TXT,
+max 10 MB each, up to 50 files), click Analyze.
+
+API docs at **http://localhost:8000/docs** (FastAPI Swagger UI).
+
+No API key is required. Optional settings in `.env` (copy from `.env.example`).
+
+---
+
+
+
+
+
 ## API Reference
 
 | Endpoint | Method     | Description                |
